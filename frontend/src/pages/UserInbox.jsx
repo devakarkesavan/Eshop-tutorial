@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/Layout/Header";
 import { useSelector } from "react-redux";
-import socketIO from "socket.io-client";
+
 import { format } from "timeago.js";
 import { server } from "../server";
 import axios from "axios";
@@ -9,8 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import styles from "../styles/styles";
-const ENDPOINT = "https://socket-ecommerce-tu68.onrender.com/";
-const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+
 
 const UserInbox = () => {
   const { user,loading } = useSelector((state) => state.user);
@@ -26,21 +26,6 @@ const UserInbox = () => {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef(null);
 
-  useEffect(() => {
-    socketId.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender) &&
-      setMessages((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
     const getConversation = async () => {
@@ -60,15 +45,7 @@ const UserInbox = () => {
     getConversation();
   }, [user, messages]);
 
-  useEffect(() => {
-    if (user) {
-      const sellerId = user?._id;
-      socketId.emit("addUser", sellerId);
-      socketId.on("getUsers", (data) => {
-        setOnlineUsers(data);
-      });
-    }
-  }, [user]);
+
 
   const onlineCheck = (chat) => {
     const chatMembers = chat.members.find((member) => member !== user?._id);
@@ -105,12 +82,7 @@ const UserInbox = () => {
       (member) => member !== user?._id
     );
 
-    socketId.emit("sendMessage", {
-      senderId: user?._id,
-      receiverId,
-      text: newMessage,
-    });
-
+    
     try {
       if (newMessage !== "") {
         await axios
@@ -129,10 +101,7 @@ const UserInbox = () => {
   };
 
   const updateLastMessage = async () => {
-    socketId.emit("updateLastMessage", {
-      lastMessage: newMessage,
-      lastMessageId: user._id,
-    });
+    
 
     await axios
       .put(`${server}/conversation/update-last-message/${currentChat._id}`, {
@@ -166,11 +135,7 @@ const UserInbox = () => {
       (member) => member !== user._id
     );
 
-    socketId.emit("sendMessage", {
-      senderId: user._id,
-      receiverId,
-      images: e,
-    });
+   
 
     try {
       await axios
@@ -216,7 +181,7 @@ const UserInbox = () => {
             All Messages
           </h1>
           {/* All messages list */}
-          {conversations &&
+          {
             conversations.map((item, index) => (
               <MessageList
                 data={item}

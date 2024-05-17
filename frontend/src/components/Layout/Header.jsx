@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "../../styles/styles";
-import { categoriesData, productData } from "../../static/data";
+import { categoriesData,} from "../../static/data";
 import {
   AiOutlineHeart,
   AiOutlineSearch,
@@ -18,7 +18,10 @@ import Wishlist from "../Wishlist/Wishlist";
 import { RxCross1 } from "react-icons/rx";
 
 const Header = ({ activeHeading }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+
+ 
+  const auth = localStorage.getItem('isauth');
+  console.log(auth)
   const { isSeller } = useSelector((state) => state.seller);
   const { wishlist } = useSelector((state) => state.wishlist);
   const { cart } = useSelector((state) => state.cart);
@@ -30,19 +33,27 @@ const Header = ({ activeHeading }) => {
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+
+
+  useEffect(() => {
+    // Fetch all items from the API endpoint on component mount
+    fetch("http://localhost:8000/allitems")
+      .then((response) => response.json())
+      .then((data) => setProducts(data))
+      .catch((error) => console.error("Error fetching products:", error));
+  }, []);
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
 
-    const filteredProducts =
-      allProducts &&
-      allProducts.filter((product) =>
-        product.name.toLowerCase().includes(term.toLowerCase())
-      );
+    // Filter products based on search term
+    const filteredProducts = products.filter((product) =>
+      product.name.toLowerCase().includes(term.toLowerCase())
+    );
     setSearchData(filteredProducts);
   };
-
   window.addEventListener("scroll", () => {
     if (window.scrollY > 70) {
       setActive(true);
@@ -77,14 +88,15 @@ const Header = ({ activeHeading }) => {
               className="absolute right-2 top-1.5 cursor-pointer"
             />
             {searchData && searchData.length !== 0 ? (
-              <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
+              <div className="absolute min-h-[10vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
                 {searchData &&
                   searchData.map((i, index) => {
                     return (
                       <Link to={`/product/${i._id}`}>
                         <div className="w-full flex items-start-py-3">
                           <img
-                            src={`${i.images[0]?.url}`}
+                            src={i.images
+                            }
                             alt=""
                             className="w-[40px] h-[40px] mr-[10px]"
                           />
@@ -172,13 +184,14 @@ const Header = ({ activeHeading }) => {
 
             <div className={`${styles.noramlFlex}`}>
               <div className="relative cursor-pointer mr-[15px]">
-                {isAuthenticated ? (
+                {auth ? (
                   <Link to="/profile">
-                    <img
+                    <CgProfile size={30} color="rgb(255 255 255 / 83%)"/>
+                    {/* <img
                       src={`${user?.avatar?.url}`}
                       className="w-[35px] h-[35px] rounded-full"
                       alt=""
-                    />
+                    /> */}
                   </Link>
                 ) : (
                   <Link to="/login">
@@ -310,14 +323,15 @@ const Header = ({ activeHeading }) => {
               <br />
 
               <div className="flex w-full justify-center">
-                {isAuthenticated ? (
+                {auth ? (
                   <div>
                     <Link to="/profile">
-                      <img
+                    <CgProfile size={30} color="rgb(255 255 255 / 83%)" />
+                      {/* <img
                         src={`${user.avatar?.url}`}
                         alt=""
                         className="w-[60px] h-[60px] rounded-full border-[3px] border-[#0eae88]"
-                      />
+                      /> */}
                     </Link>
                   </div>
                 ) : (

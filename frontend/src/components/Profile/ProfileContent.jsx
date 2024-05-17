@@ -12,12 +12,12 @@ import { Button } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { MdTrackChanges } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
-import {
-  deleteUserAddress,
-  loadUser,
-  updatUserAddress,
-  updateUserInformation,
-} from "../../redux/actions/user";
+// import {
+//   deleteUserAddress,
+//   loadUser,
+//   updatUserAddress,
+//   updateUserInformation,
+// } from "../../redux/actions/user";
 import { Country, State } from "country-state-city";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -25,28 +25,18 @@ import axios from "axios";
 import { getAllOrdersOfUser } from "../../redux/actions/order";
 
 const ProfileContent = ({ active }) => {
-  const { user, error, successMessage } = useSelector((state) => state.user);
-  const [name, setName] = useState(user && user.name);
-  const [email, setEmail] = useState(user && user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
-  const [password, setPassword] = useState("");
-  const [avatar, setAvatar] = useState(null);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-      dispatch({ type: "clearErrors" });
-    }
-    if (successMessage) {
-      toast.success(successMessage);
-      dispatch({ type: "clearMessages" });
-    }
-  }, [error, successMessage]);
+  const details = localStorage.getItem('userdetails')
+  console.log(details)
+  const { user } = useState(details);
+  const [name, setName] = useState(localStorage.getItem('name'));
+  const [email, setEmail] = useState(localStorage.getItem('email'));
+  
+  const [password, setPassword] = useState(localStorage.getItem('pass'));
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateUserInformation(name, email, phoneNumber, password));
+    // dispatch(updateUserInformation(name, email, phoneNumber, password));
   };
 
   const handleImage = async (e) => {
@@ -54,7 +44,7 @@ const ProfileContent = ({ active }) => {
 
     reader.onload = () => {
       if (reader.readyState === 2) {
-        setAvatar(reader.result);
+        // setAvatar(reader.result);
         axios
           .put(
             `${server}/user/update-avatar`,
@@ -64,7 +54,7 @@ const ProfileContent = ({ active }) => {
             }
           )
           .then((response) => {
-            dispatch(loadUser());
+            // dispatch(loadUser());
             toast.success("avatar updated successfully!");
           })
           .catch((error) => {
@@ -84,7 +74,7 @@ const ProfileContent = ({ active }) => {
           <div className="flex justify-center w-full">
             <div className="relative">
               <img
-                src={`${user?.avatar?.url}`}
+                src={`data:image/png;base64,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`}
                 className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
                 alt=""
               />
@@ -129,16 +119,7 @@ const ProfileContent = ({ active }) => {
               </div>
 
               <div className="w-full 800px:flex block pb-3">
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Phone Number</label>
-                  <input
-                    type="number"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
+                
 
                 <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Enter your password</label>
@@ -565,14 +546,14 @@ const Address = () => {
       toast.error("Please fill all the fields!");
     } else {
       dispatch(
-        updatUserAddress(
-          country,
-          city,
-          address1,
-          address2,
-          zipCode,
-          addressType
-        )
+        // updatUserAddress(
+        //   country,
+        //   city,
+        //   address1,
+        //   address2,
+        //   zipCode,
+        //   addressType
+        // )
       );
       setOpen(false);
       setCountry("");
@@ -586,7 +567,7 @@ const Address = () => {
 
   const handleDelete = (item) => {
     const id = item._id;
-    dispatch(deleteUserAddress(id));
+    // dispatch(deleteUserAddress(id));
   };
 
   return (

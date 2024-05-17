@@ -21,13 +21,13 @@ const Payment = () => {
   const [open, setOpen] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const stripe = useStripe();
-  const elements = useElements();
+  // const stripe = useStripe();
+ 
 
-  useEffect(() => {
-    const orderData = JSON.parse(localStorage.getItem("latestOrder"));
-    setOrderData(orderData);
-  }, []);
+  // useEffect(() => {
+  //   const orderData = JSON.parse(localStorage.getItem("latestOrder"));
+  //   setOrderData(orderData);
+  // }, []);
 
   const createOrder = (data, actions) => {
     return actions.order
@@ -114,14 +114,8 @@ const Payment = () => {
         config
       );
 
-      const client_secret = data.client_secret;
-
-      if (!stripe || !elements) return;
-      const result = await stripe.confirmCardPayment(client_secret, {
-        payment_method: {
-          card: elements.getElement(CardNumberElement),
-        },
-      });
+      
+      const result = "";
 
       if (result.error) {
         toast.error(result.error.message);
@@ -176,24 +170,27 @@ const Payment = () => {
   };
 
   return (
+    <>
     <div className="w-full flex flex-col items-center py-8">
       <div className="w-[90%] 1000px:w-[70%] block 800px:flex">
         <div className="w-full 800px:w-[65%]">
-          <PaymentInfo
+          <PaymentInfo/>
+          {/* <PaymentInfo
             user={user}
             open={open}
-            setOpen={setOpen}
-            onApprove={onApprove}
-            createOrder={createOrder}
-            paymentHandler={paymentHandler}
-            cashOnDeliveryHandler={cashOnDeliveryHandler}
-          />
+            // setOpen={setOpen}
+            // onApprove={onApprove}
+            // createOrder={createOrder}
+            // paymentHandler={paymentHandler}
+            // cashOnDeliveryHandler={cashOnDeliveryHandler}
+          /> */}
         </div>
         <div className="w-full 800px:w-[35%] 800px:mt-0 mt-8">
-          <CartData orderData={orderData} />
+          {/* <CartData orderData={orderData} /> */}
         </div>
       </div>
     </div>
+    </>
   );
 };
 
@@ -242,7 +239,7 @@ const PaymentInfo = ({
                 </div>
                 <div className="w-[50%]">
                   <label className="block pb-2">Exp Date</label>
-                  <CardExpiryElement
+                  {/* <CardExpiryElement
                     className={`${styles.input}`}
                     options={{
                       style: {
@@ -260,7 +257,7 @@ const PaymentInfo = ({
                         },
                       },
                     }}
-                  />
+                  /> */}
                 </div>
               </div>
 
@@ -289,7 +286,7 @@ const PaymentInfo = ({
                 </div>
                 <div className="w-[50%]">
                   <label className="block pb-2">CVV</label>
-                  <CardCvcElement
+                  {/* <CardCvcElement
                     className={`${styles.input} !h-[35px]`}
                     options={{
                       style: {
@@ -307,7 +304,7 @@ const PaymentInfo = ({
                         },
                       },
                     }}
-                  />
+                  /> */}
                 </div>
               </div>
               <input
@@ -356,7 +353,7 @@ const PaymentInfo = ({
                       onClick={() => setOpen(false)}
                     />
                   </div>
-                    <PayPalScriptProvider
+                    {/* <PayPalScriptProvider
                       options={{
                         "client-id":
                           "Aczac4Ry9_QA1t4c7TKH9UusH3RTe6onyICPoCToHG10kjlNdI-qwobbW9JAHzaRQwFMn2-k660853jn",
@@ -367,7 +364,7 @@ const PaymentInfo = ({
                         onApprove={onApprove}
                         createOrder={createOrder}
                       />
-                    </PayPalScriptProvider>
+                    </PayPalScriptProvider> */}
                 </div>
               </div>
             )}

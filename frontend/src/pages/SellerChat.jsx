@@ -5,7 +5,7 @@ import axios from 'axios';
 const Chat = () => {
   const { id } = useParams(); // Extract 'id' from route params (receiver ID)
   const receiver = id;
-  const sender = localStorage.getItem('userid'); // Get sender ID from localStorage
+  const sender = localStorage.getItem('sellerid'); // Get sender ID from localStorage
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');

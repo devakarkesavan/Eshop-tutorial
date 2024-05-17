@@ -14,20 +14,32 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if(email=="admin@gmail.com"){
+      navigate('/admin/dashboard')
+    }
     await axios
       .post(
         `${server}/user/login-user`,
         {
           email,
           password,
-        },
-        { withCredentials: true }
+        }
       )
       .then((res) => {
+        console.log(res);
         toast.success("Login Success!");
         navigate("/");
-        window.location.reload(true); 
+        // window.location.reload(true); 
+        localStorage.setItem('isauth',true);
+        console.log(res.data.user._id)
+        
+        localStorage.setItem('userdetails',res.data.user)
+        localStorage.setItem('name',res.data.user.name)
+        localStorage.setItem('email',res.data.user.email);
+        localStorage.setItem('pass',res.data.pass)
+        localStorage.setItem('userid',res.data.user._id)
+
+        
       })
       .catch((err) => {
         toast.error(err.response.data.message);

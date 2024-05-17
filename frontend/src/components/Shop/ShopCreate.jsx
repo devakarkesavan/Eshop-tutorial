@@ -16,10 +16,10 @@ const ShopCreate = () => {
   const [avatar, setAvatar] = useState();
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(phoneNumber)
     axios
       .post(`${server}/shop/create-shop`, {
         name,
@@ -28,7 +28,7 @@ const ShopCreate = () => {
         avatar,
         zipCode,
         address,
-        phoneNumber,
+        phoneNumber
       })
       .then((res) => {
         toast.success(res.data.message);
@@ -45,17 +45,6 @@ const ShopCreate = () => {
       });
   };
 
-  const handleFileInputChange = (e) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatar(reader.result);
-      }
-    };
-
-    reader.readAsDataURL(e.target.files[0]);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -196,39 +185,7 @@ const ShopCreate = () => {
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="avatar"
-                className="block text-sm font-medium text-gray-700"
-              ></label>
-              <div className="mt-2 flex items-center">
-                <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                  {avatar ? (
-                    <img
-                      src={avatar}
-                      alt="avatar"
-                      className="h-full w-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <RxAvatar className="h-8 w-8" />
-                  )}
-                </span>
-                <label
-                  htmlFor="file-input"
-                  className="ml-5 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  <span>Upload a file</span>
-                  <input
-                    type="file"
-                    name="avatar"
-                    id="file-input"
-                    onChange={handleFileInputChange}
-                    className="sr-only"
-                  />
-                </label>
-              </div>
-            </div>
-
+          
             <div>
               <button
                 type="submit"

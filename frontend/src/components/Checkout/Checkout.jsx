@@ -4,13 +4,16 @@ import { Country, State } from "country-state-city";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
-
+import { productData } from "../../static/data";
+console.log(localStorage.getItem('userid'));
 const Checkout = () => {
-  const { user } = useSelector((state) => state.user);
-  const { cart } = useSelector((state) => state.cart);
+  const { id } = useParams();
+  const user = localStorage.getItem('userid')
+  console.log(user)
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [userInfo, setUserInfo] = useState(false);
@@ -18,9 +21,27 @@ const Checkout = () => {
   const [address2, setAddress2] = useState("");
   const [zipCode, setZipCode] = useState(null);
   const [couponCode, setCouponCode] = useState("");
-  const [couponCodeData, setCouponCodeData] = useState(null);
-  const [discountPrice, setDiscountPrice] = useState(null);
+  const [product, setProduct] = useState(null);
   const navigate = useNavigate();
+  useEffect(() => {
+    // Fetch specific product data based on the ID from the URL
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/singlepdt/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch product");
+        }
+        const productData = await response.json();
+        console.log(productData)
+        localStorage.setItem('price',productData.originalPrice);
+        setProduct(productData);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    fetchProduct(); 
+  }, [id]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,69 +59,48 @@ const Checkout = () => {
       city,
     };
 
+    
     const orderData = {
-      cart,
+      product,
       totalPrice,
-      subTotalPrice,
-      shipping,
-      discountPrice,
       shippingAddress,
       user,
     }
 
     // update local storage with the updated orders array
     localStorage.setItem("latestOrder", JSON.stringify(orderData));
-    navigate("/payment");
+    console.log(orderData)
+    try {
+      const response = axios.post('http://localhost:8000/neworder', orderData);
+      console.log('New order created:', response.data);
+      navigate('/order/success')
+    } catch (error) {
+      console.error('Error creating order:', error);
+      // Optionally: Handle error state or show error message to user
+    }
+  
+    
+    
    }
   };
 
-  const subTotalPrice = cart.reduce(
-    (acc, item) => acc + item.qty * item.discountPrice,
-    0
-  );
+  const subTotalPrice = localStorage.getItem('price');
 
+  
+  
   // this is shipping cost variable
-  const shipping = subTotalPrice * 0.1;
+  const shipping = parseInt(subTotalPrice, 10) * 0.1;
+  const totalPrice = parseInt(subTotalPrice, 10)+shipping;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const name = couponCode;
 
-    await axios.get(`${server}/coupon/get-coupon-value/${name}`).then((res) => {
-      const shopId = res.data.couponCode?.shopId;
-      const couponCodeValue = res.data.couponCode?.value;
-      if (res.data.couponCode !== null) {
-        const isCouponValid =
-          cart && cart.filter((item) => item.shopId === shopId);
-
-        if (isCouponValid.length === 0) {
-          toast.error("Coupon code is not valid for this shop");
-          setCouponCode("");
-        } else {
-          const eligiblePrice = isCouponValid.reduce(
-            (acc, item) => acc + item.qty * item.discountPrice,
-            0
-          );
-          const discountPrice = (eligiblePrice * couponCodeValue) / 100;
-          setDiscountPrice(discountPrice);
-          setCouponCodeData(res.data.couponCode);
-          setCouponCode("");
-        }
-      }
-      if (res.data.couponCode === null) {
-        toast.error("Coupon code doesn't exists!");
-        setCouponCode("");
-      }
-    });
+    
   };
 
-  const discountPercentenge = couponCodeData ? discountPrice : "";
+ 
 
-  const totalPrice = couponCodeData
-    ? (subTotalPrice + shipping - discountPercentenge).toFixed(2)
-    : (subTotalPrice + shipping).toFixed(2);
-
-  console.log(discountPercentenge);
+ 
 
   return (
     <div className="w-full flex flex-col items-center py-8">
@@ -130,7 +130,7 @@ const Checkout = () => {
             subTotalPrice={subTotalPrice}
             couponCode={couponCode}
             setCouponCode={setCouponCode}
-            discountPercentenge={discountPercentenge}
+            
           />
         </div>
       </div>

@@ -2,60 +2,54 @@ const express = require("express");
 const { isSeller, isAuthenticated, isAdmin } = require("../middleware/auth");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const router = express.Router();
-const Product = require("../model/product");
+const Products = require("../model/product");
 const Order = require("../model/order");
 const Shop = require("../model/shop");
 const cloudinary = require("cloudinary");
 const ErrorHandler = require("../utils/ErrorHandler");
 
 // create product
-router.post(
-  "/create-product",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const shopId = req.body.shopId;
-      const shop = await Shop.findById(shopId);
-      if (!shop) {
-        return next(new ErrorHandler("Shop Id is invalid!", 400));
-      } else {
-        let images = [];
+router.post('/create-products', async (req, res) => {
+  
+  const {
+    name,
+    description,
+    category,
+    tags,
+    originalPrice,
+    discountPrice,
+    stock,
+    images,
+    shopId,
+    shop
+  } = req.body;
+ console.log(req.body)
+  try {
+    // Create a new product instance
+    const newProduct = new Products({
+      name,
+      description,
+      category,
+      tags,
+      originalPrice,
+      discountPrice,
+      stock,
+      images,
+      shopId,
+      shop
+    });
 
-        if (typeof req.body.images === "string") {
-          images.push(req.body.images);
-        } else {
-          images = req.body.images;
-        }
-      
-        const imagesLinks = [];
-      
-        for (let i = 0; i < images.length; i++) {
-          const result = await cloudinary.v2.uploader.upload(images[i], {
-            folder: "products",
-          });
-      
-          imagesLinks.push({
-            public_id: result.public_id,
-            url: result.secure_url,
-          });
-        }
-      
-        const productData = req.body;
-        productData.images = imagesLinks;
-        productData.shop = shop;
+    // Save the new product to the database
+    await newProduct.save();
+ 
+    // Respond with success message
+    res.status(201).json({ message: "Product created successfully", product: newProduct });
 
-        const product = await Product.create(productData);
-
-        res.status(201).json({
-          success: true,
-          product,
-        });
-      }
-    } catch (error) {
-      return next(new ErrorHandler(error, 400));
-    }
-  })
-);
-
+  } catch (error) {
+    // Handle any product creation errors
+    res.status(500).json({ message: "Failed to create product", error: error.message });
+  }
+});
 // get all products of a shop
 router.get(
   "/get-all-products-shop/:id",

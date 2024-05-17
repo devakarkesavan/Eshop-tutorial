@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
+import { RiWindyLine } from "react-icons/ri";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
@@ -27,7 +28,10 @@ const ShopLogin = () => {
       .then((res) => {
         toast.success("Login Success!");
         navigate("/dashboard");
-        window.location.reload(true); 
+        
+        console.log(res.data.user._id)
+        localStorage.setItem('sellerid',res.data.user._id);
+        localStorage.setItem('isseller',true);
       })
       .catch((err) => {
         toast.error(err.response.data.message);

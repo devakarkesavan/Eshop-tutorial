@@ -5,7 +5,8 @@ import ShopLogin from "../components/Shop/ShopLogin";
 
 const ShopLoginPage = () => {
   const navigate = useNavigate();
-  const { isSeller,isLoading } = useSelector((state) => state.seller);
+  const {isLoading } = useSelector((state) => state.seller);
+  const isSeller = localStorage.getItem('isseller')
 
   useEffect(() => {
     if(isSeller === true){

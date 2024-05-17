@@ -2,64 +2,58 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/styles";
 import { BsFillBagFill } from "react-icons/bs";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllOrdersOfShop } from "../../redux/actions/order";
-import { server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const OrderDetails = () => {
-  const { orders, isLoading } = useSelector((state) => state.order);
-  const { seller } = useSelector((state) => state.seller);
-  const dispatch = useDispatch();
+  
+  
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
-  const { id } = useParams();
-
+  const  shopId  = useParams();
+  const [orders, setOrders] = useState([]);
+  
+  const orderid = shopId.id
   useEffect(() => {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
+    const fetchOrdersByShopId = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/orders/${orderid}`);
+        setOrders(response.data);
+        console.log(response.data)
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } 
+    };
 
-  const data = orders && orders.find((item) => item._id === id);
+    fetchOrdersByShopId();
+  }, [shopId]);
+
+  
+  const data = null;
 
   const orderUpdateHandler = async (e) => {
-    await axios
-      .put(
-        `${server}/order/update-order-status/${id}`,
-        {
-          status,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        toast.success("Order updated!");
-        navigate("/dashboard-orders");
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+    // await axios
+    //   .put(
+    //     `${server}/order/update-order-status/${id}`,
+    //     {
+    //       status,
+    //     },
+    //     { withCredentials: true }
+    //   )
+    //   .then((res) => {
+    //     toast.success("Order updated!");
+    //     navigate("/dashboard-orders");
+    //   })
+    //   .catch((error) => {
+    //     toast.error(error.response.data.message);
+    //   });
   };
 
   const refundOrderUpdateHandler = async (e) => {
-    await axios
-    .put(
-      `${server}/order/order-refund-success/${id}`,
-      {
-        status,
-      },
-      { withCredentials: true }
-    )
-    .then((res) => {
-      toast.success("Order updated!");
-      dispatch(getAllOrdersOfShop(seller._id));
-    })
-    .catch((error) => {
-      toast.error(error.response.data.message);
-    });
+    
   }
 
-  console.log(data?.status);
 
 
   return (
@@ -80,36 +74,36 @@ const OrderDetails = () => {
 
       <div className="w-full flex items-center justify-between pt-6">
         <h5 className="text-[#00000084]">
-          Order ID: <span>#{data?._id?.slice(0, 8)}</span>
+          Order ID: <span>#{orders._id}</span>
         </h5>
         <h5 className="text-[#00000084]">
-          Placed on: <span>{data?.createdAt?.slice(0, 10)}</span>
+          Placed on: <span>{orders.createdAt?.slice(0, 10)}</span>
         </h5>
       </div>
 
       {/* order items */}
       <br />
       <br />
-      {data &&
-        data?.cart.map((item, index) => (
+      {/* {data &&
+        data?.cart.map((item, index) => ( */}
           <div className="w-full flex items-start mb-5">
-            <img
-              src={`${item.images[0]?.url}`}
+            {/* <img
+              src={orders.product.images}
               alt=""
               className="w-[80x] h-[80px]"
-            />
+            /> */}
             <div className="w-full">
-              <h5 className="pl-3 text-[20px]">{item.name}</h5>
+              <h5 className="pl-3 text-[20px]">{orders.name}</h5>
               <h5 className="pl-3 text-[20px] text-[#00000091]">
-                US${item.discountPrice} x {item.qty}
+                {/* US${item.discountPrice} x {item.qty} */}
               </h5>
             </div>
           </div>
-        ))}
+        {/* ))} */}
 
       <div className="border-t w-full text-right">
         <h5 className="pt-3 text-[18px]">
-          Total Price: <strong>US${data?.totalPrice}</strong>
+          Total Price: <strong>US${orders.totalPrice}</strong>
         </h5>
       </div>
       <br />

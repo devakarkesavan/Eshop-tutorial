@@ -11,7 +11,7 @@ const coupounCodeSchema = new mongoose.Schema({
         required: true,
     },
     minAmount:{
-        type: Number,
+        type: Number, 
     },
     maxAmount:{
         type: Number,

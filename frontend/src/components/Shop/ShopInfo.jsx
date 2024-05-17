@@ -28,9 +28,7 @@ const ShopInfo = ({ isOwner }) => {
   
 
   const logoutHandler = async () => {
-    axios.get(`${server}/shop/logout`,{
-      withCredentials: true,
-    });
+    localStorage.removeItem('isseller')
     window.location.reload();
   };
 
@@ -52,7 +50,8 @@ const ShopInfo = ({ isOwner }) => {
       <div className="w-full py-5">
         <div className="w-full flex item-center justify-center">
           <img
-            src={`${data.avatar?.url}`}
+              src='https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+             
             alt=""
             className="w-[150px] h-[150px] object-cover rounded-full"
           />

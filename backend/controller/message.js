@@ -11,17 +11,6 @@ router.post(
   catchAsyncErrors(async (req, res, next) => {
     try {
       const messageData = req.body;
-
-      if (req.body.images) {
-        const myCloud = await cloudinary.v2.uploader.upload(req.body.images, {
-          folder: "messages",
-        });
-        messageData.images = {
-          public_id: myCloud.public_id,
-          url: myCloud.url,
-        };
-      }
-
       messageData.conversationId = req.body.conversationId;
       messageData.sender = req.body.sender;
       messageData.text = req.body.text;

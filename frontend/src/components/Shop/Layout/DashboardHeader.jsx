@@ -7,7 +7,8 @@ import { Link } from "react-router-dom";
 import { BiMessageSquareDetail } from "react-icons/bi";
 
 const DashboardHeader = () => {
-  const { seller } = useSelector((state) => state.seller);
+  const seller = localStorage.getItem('sellerid')
+  console.log(seller)
   return (
     <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
       <div>
@@ -51,9 +52,9 @@ const DashboardHeader = () => {
               className="mx-5 cursor-pointer"
             />
           </Link>
-          <Link to={`/shop/${seller._id}`}>
+          <Link to={`/shop/${seller}`}>
             <img
-              src={`${seller.avatar?.url}`}
+              src='https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
               alt=""
               className="w-[50px] h-[50px] rounded-full object-cover"
             />

@@ -1,84 +1,59 @@
-import { Button } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
 import { DataGrid } from "@material-ui/data-grid";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import Loader from "../Layout/Loader";
-import { getAllOrdersOfShop } from "../../redux/actions/order";
+import axios from "axios";
 import { AiOutlineArrowRight } from "react-icons/ai";
+import Loader from "../Layout/Loader";
+import { Button } from "@material-ui/core";
 
 const AllOrders = () => {
-  const { orders, isLoading } = useSelector((state) => state.order);
-  const { seller } = useSelector((state) => state.seller);
-
-  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+  const shopId = localStorage.getItem('sellerid');
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
+    const fetchOrdersByShopId = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/orders/shop/${shopId}`);
+        setOrders(response.data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrdersByShopId();
+  }, [shopId]);
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    { field: "status", headerName: "Status", minWidth: 130, flex: 0.7 },
+    { field: "itemsQty", headerName: "Items Qty", type: "number", minWidth: 130, flex: 0.7 },
+    { field: "total", headerName: "Total", type: "number", minWidth: 130, flex: 0.8 },
     {
-      field: "status",
-      headerName: "Status",
-      minWidth: 130,
-      flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 130,
-      flex: 0.7,
-    },
-
-    {
-      field: "total",
-      headerName: "Total",
-      type: "number",
-      minWidth: 130,
-      flex: 0.8,
-    },
-
-    {
-      field: " ",
+      field: "actions",
+      headerName: "",
       flex: 1,
       minWidth: 150,
-      headerName: "",
-      type: "number",
       sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/order/${params.id}`}>
-              <Button>
-                <AiOutlineArrowRight size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
+      renderCell: (params) => (
+        <Link to={`/order/${params.row.id}`}>
+          <Button>
+            <AiOutlineArrowRight size={20} />
+          </Button>
+        </Link>
+      ),
     },
   ];
 
-  const row = [];
-
-  orders &&
-    orders.forEach((item) => {
-      row.push({
-        id: item._id,
-        itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
-        status: item.status,
-      });
-    });
+  // Prepare rows data based on fetched orders
+  const rows = orders.map((order) => ({
+    id: order._id,
+    status: order.status,
+    itemsQty: order.product ? 1 : 0, // Assuming one product per order
+    total: order.totalPrice.toFixed(2), // Format total price to 2 decimal places
+  }));
 
   return (
     <>
@@ -87,7 +62,7 @@ const AllOrders = () => {
       ) : (
         <div className="w-full mx-8 pt-1 mt-10 bg-white">
           <DataGrid
-            rows={row}
+            rows={rows}
             columns={columns}
             pageSize={10}
             disableSelectionOnClick

@@ -19,16 +19,12 @@ const ProfileSidebar = ({ setActive, active }) => {
   const navigate = useNavigate();
  const {user} = useSelector((state) => state.user);
   const logoutHandler = () => {
-    axios
-      .get(`${server}/user/logout`, { withCredentials: true })
-      .then((res) => {
-        toast.success(res.data.message);
-        window.location.reload(true);
-        navigate("/login");
-      })
-      .catch((error) => {
-        console.log(error.response.data.message);
-      });
+        localStorage.removeItem('isauth');
+        toast.success('Logout successfully');
+        // window.location.reload(true);
+        navigate("/");
+    
+      
   };
   return (
     <div className="w-full bg-white shadow-sm rounded-[10px] p-4 pt-8">
@@ -88,7 +84,7 @@ const ProfileSidebar = ({ setActive, active }) => {
 
       <div
         className="flex items-center cursor-pointer w-full mb-8"
-        onClick={() => setActive(5)}
+        onClick={() => window.location.href="/user/order"}
       >
         <MdOutlineTrackChanges size={20} color={active === 5 ? "red" : ""} />
         <span
